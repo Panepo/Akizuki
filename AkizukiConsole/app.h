@@ -14,12 +14,12 @@
 #include "configCamera.h"
 #include "funcFormat.h"
 
-#include "zukiRecognizer.h"
+#include "zukiStreamer.h"
 
 typedef enum appState
 {
 	APPSTATE_EXIT,
-	APPSTATE_RECOGNIZER,
+	APPSTATE_STREAMER,
 } appState;
 
 class app
@@ -36,9 +36,6 @@ public:
 
 	appState state = APPSTATE_EXIT;
 	cv::Mat matOutput;
-	cv::Mat matRGB;
-	cv::Mat matInfrared;
-	cv::Mat matDepth;
 
 private:
 	// realsense private parameters
@@ -48,7 +45,7 @@ private:
 	rs2::temporal_filter filterTemp;
 
 	// application private parameters
-	std::string windowTitle = "Teruzuki";
+	std::string windowTitle = "Akizuki";
 	std::string visualPreset = "High Density";
 	std::clock_t begin;
 	std::clock_t end;
@@ -64,6 +61,12 @@ private:
 	// application events
 	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
 	void eventMouse(int event, int x, int y, int flags);
+
+	// declare application plugins
+	zukiStreamer streamer;
+
+	// application plugin configs
+	configStreamer configStreamer;
 };
 
 #endif

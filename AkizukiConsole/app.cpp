@@ -14,7 +14,7 @@ void app::cameraInitial()
 {
 	supportDevice device = detectDevice();
 	
-	state = APPSTATE_RECOGNIZER;
+	state = APPSTATE_STREAMER;
 	rs2::config config;
 	
 	if (device == REALSENSE_415)
@@ -45,22 +45,18 @@ void app::cameraInitial()
 	filterSpat.set_option(RS2_OPTION_HOLES_FILL, 5);
 
 	for (int i = 0; i < 10; i++) pipeline.wait_for_frames();
-
-	cv::setMouseCallback(windowTitle, eventMouseS, this);
 }
 
 void app::cameraProcess()
 {
 	begin = clock();
-
-	// declare application plugins
-	zukiRecognizer recognizer;
-
+	cv::setMouseCallback(windowTitle, eventMouseS, this);
+	
 	// application main process
 	switch (state)
 	{
-	case APPSTATE_RECOGNIZER:
-		recognizer.RecognizerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+	case APPSTATE_STREAMER:
+		streamer.streamerMain(matOutput, configStreamer, pipeline, filterSpat, filterTemp, intrinsics);
 		break;
 	default:
 		state = APPSTATE_EXIT;
@@ -112,5 +108,23 @@ void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
 
 void app::eventMouse(int event, int x, int y, int flags)
 {
+	int modx, mody;
+	
+	if (x >= 0 && x <= ColorWidth)
+		modx = x;
+	else
+		modx = ColorWidth - 1;
+	if (y >= 0 && y <= ColorHeight)
+		mody = y;
+	else
+		mody = ColorHeight - 1;
 
+	switch (state)
+	{
+	case APPSTATE_STREAMER:
+		streamer.streamerMouseHandler(configStreamer, event, modx, mody, flags);
+		break;
+	default:
+		break;
+	}
 }

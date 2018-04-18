@@ -8,7 +8,7 @@ void eventKeyboard(appState & state, std::string & windowTitle, cv::Mat & matOut
 
 int main(int argc, char * argv[]) try
 {
-	std::string appTitle = "Teruzuki";
+	std::string appTitle = "Akizuki";
 	app akizuki(appTitle);
 
 	akizuki.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
