@@ -7,6 +7,7 @@
 
 #include "funcFormat.h"
 #include "funcOpenCV.h"
+#include "funcStream.h"
 #include <librealsense2\rsutil.h>
 
 #define pointerSize		5
@@ -38,24 +39,24 @@ class zukiStreamer
 public:
 	void streamerMain(
 		cv::Mat & matOutput,
-		configStreamer & configStreamer,
 		rs2::pipeline & pipeline, 
 		rs2::spatial_filter & filterSpat, 
 		rs2::temporal_filter & filterTemp,
 		rs2_intrinsics & intrinsics
 	);
-	void streamerMouseHandler(configStreamer & configStreamer, int event, int x, int y, int flags);
+	void streamerMouseHandler(int event, int x, int y, int flags);
+
+	configStreamer config;
 private:
 	void streamerColor(
 		cv::Mat & matOutput,
-		configStreamer & configStreamer,
 		rs2::frameset & alignedFrame,
 		rs2::depth_frame & depth,
 		rs2_intrinsics & intrinsics
 	);
 
 
-	void streamPointer(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrin, configStreamer & configStreamer);
+	void streamPointer(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
 };
 
 #endif

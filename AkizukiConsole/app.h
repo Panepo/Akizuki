@@ -65,8 +65,6 @@ private:
 	// declare application plugins
 	zukiStreamer streamer;
 
-	// application plugin configs
-	configStreamer configStreamer;
 };
 
 #endif

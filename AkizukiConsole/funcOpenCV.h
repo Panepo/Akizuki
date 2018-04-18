@@ -11,19 +11,10 @@
 
 #include "funcGeometry2D.h"
 
-#define zoomerScaleMin	0.1
-#define zoomerScaleMax	1
-#define zoomerLineSize	5
-#define zoomerLineColor cv::Scalar(0, 255,255)		// yellow
-#define zoomerMapSize	3
-#define zoomerMapColor  cv::Scalar(0, 255,0)		// green
-
 namespace funcOpenCV
 {
 	void addMinimapRD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & output, cv::Size & sizeMap, int border, cv::Scalar color);
 	void addMinimapLD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & output, cv::Size & sizeMap, int border, cv::Scalar color);
-	
-	void genZoomFrame(cv::Mat & input, cv::Mat & output, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom);
 			
 	inline bool compareXCords(cv::Point pixelA, cv::Point pixelB);
 	inline bool compareYCords(cv::Point pixelA, cv::Point pixelB);

@@ -8,6 +8,8 @@
 app::app(std::string title)
 {
 	windowTitle = title;
+	cv::namedWindow(windowTitle, CV_WINDOW_AUTOSIZE);
+	cv::setMouseCallback(windowTitle, eventMouseS, this);
 }
 
 void app::cameraInitial()
@@ -50,13 +52,12 @@ void app::cameraInitial()
 void app::cameraProcess()
 {
 	begin = clock();
-	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	
 	// application main process
 	switch (state)
 	{
 	case APPSTATE_STREAMER:
-		streamer.streamerMain(matOutput, configStreamer, pipeline, filterSpat, filterTemp, intrinsics);
+		streamer.streamerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
 		break;
 	default:
 		state = APPSTATE_EXIT;
@@ -122,7 +123,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 	switch (state)
 	{
 	case APPSTATE_STREAMER:
-		streamer.streamerMouseHandler(configStreamer, event, modx, mody, flags);
+		streamer.streamerMouseHandler(event, modx, mody, flags);
 		break;
 	default:
 		break;
