@@ -62,6 +62,10 @@ void app::cameraProcess()
 		streamer.streamerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
 		infoText = streamer.config.infoText;
 		break;
+	case APPSTATE_RULER:
+		ruler.rulerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+		infoText = ruler.config.infoText;
+		break;
 	default:
 		state = APPSTATE_EXIT;
 		break;
@@ -136,6 +140,9 @@ void app::eventMouse(int event, int x, int y, int flags)
 	case APPSTATE_STREAMER:
 		streamer.streamerMouseHandler(event, modx, mody, flags);
 		break;
+	case APPSTATE_RULER:
+		ruler.rulerMouseHandler(event, modx, mody, flags);
+		break;
 	default:
 		break;
 	}
@@ -165,5 +172,12 @@ void app::eventKeyboard()
 			streamer.streamerKeyboardHandler();
 		else
 			state = APPSTATE_STREAMER;
+	}
+	else if (key == 'z' || key == 'Z')
+	{
+		if (state == APPSTATE_RULER)
+			ruler.rulerKeyboardHandler();
+		else
+			state = APPSTATE_RULER;
 	}
 }

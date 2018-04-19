@@ -9,11 +9,13 @@
 #include "funcStream.h"
 
 #include "zukiStreamer.h"
+#include "zukiRuler.h"
 
 typedef enum appState
 {
 	APPSTATE_EXIT,
 	APPSTATE_STREAMER,
+	APPSTATE_RULER,
 } appState;
 
 class app
@@ -55,7 +57,7 @@ private:
 
 	// declare application plugins
 	zukiStreamer streamer;
-
+	zukiRuler ruler;
 };
 
 #endif

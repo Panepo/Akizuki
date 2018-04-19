@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "zukiStreamer.h"
 
+// =================================================================================
+// Plugin main process
+// =================================================================================
+
 void zukiStreamer::streamerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::spatial_filter & filterSpat, rs2::temporal_filter & filterTemp, rs2_intrinsics & intrinsics)
 {
 	rs2::align alignTo(RS2_STREAM_COLOR);
@@ -29,6 +33,10 @@ void zukiStreamer::streamerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, r
 		break;
 	}
 }
+
+// =================================================================================
+// Plugin events
+// =================================================================================
 
 void zukiStreamer::streamerMouseHandler(int event, int x, int y, int flags)
 {
@@ -70,6 +78,10 @@ void zukiStreamer::streamerKeyboardHandler()
 		break;
 	}
 }
+
+// =================================================================================
+// Plugin sub functions
+// =================================================================================
 
 void zukiStreamer::streamerColor(cv::Mat & matOutput, rs2::frameset & alignedFrame, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
 {
