@@ -6,7 +6,6 @@
 #include <opencv2\opencv.hpp>
 
 #include "funcFormat.h"
-#include "funcOpenCV.h"
 #include "funcStream.h"
 #include <librealsense2\rsutil.h>
 
@@ -32,6 +31,7 @@ public:
 	cv::Point pixelZoom = cv::Point(0, 0);
 	cv::Point pixelRoiZoom = cv::Point(0, 0);
 	float scaleZoom = 1;
+	std::string infoText = "";
 };
 
 class zukiStreamer
@@ -45,12 +45,24 @@ public:
 		rs2_intrinsics & intrinsics
 	);
 	void streamerMouseHandler(int event, int x, int y, int flags);
+	void streamerKeyboardHandler();
 
 	configStreamer config;
 private:
 	void streamerColor(
 		cv::Mat & matOutput,
 		rs2::frameset & alignedFrame,
+		rs2::depth_frame & depth,
+		rs2_intrinsics & intrinsics
+	);
+	void streamerInfrared(
+		cv::Mat & matOutput,
+		rs2::frameset & alignedFrame,
+		rs2::depth_frame & depth,
+		rs2_intrinsics & intrinsics
+	);
+	void streamerDepth(
+		cv::Mat & matOutput,
 		rs2::depth_frame & depth,
 		rs2_intrinsics & intrinsics
 	);

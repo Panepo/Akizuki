@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "app.h"
 
-void eventKeyboard(appState & state, std::string & windowTitle, cv::Mat & matOutput);
+// void eventKeyboard(appState & state, std::string & windowTitle, cv::Mat & matOutput);
 
 int main(int argc, char * argv[]) try
 {
@@ -22,7 +22,6 @@ int main(int argc, char * argv[]) try
 	{
 		akizuki.cameraProcess();
 		cv::imshow(appTitle, akizuki.matOutput);
-		eventKeyboard(akizuki.state, appTitle, akizuki.matOutput);
 	}
 
 	return EXIT_SUCCESS;
@@ -40,24 +39,24 @@ catch (const std::exception& e)
 	return EXIT_FAILURE;
 }
 
-void eventKeyboard(appState & state, std::string & windowTitle, cv::Mat & matOutput)
-{
-	char key = cv::waitKey(10);
-
-	if (key == 'q' || key == 'Q')
-		state = APPSTATE_EXIT;
-	else if (key == 'w' || key == 'W')
-	{
-		time_t t = std::time(nullptr);
-#pragma warning( disable : 4996 )
-		tm tm = *std::localtime(&t);
-
-		std::ostringstream oss;
-		oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
-		std::string str = windowTitle + "_" + oss.str() + ".jpg";
-		cv::imwrite(str, matOutput);
-		std::cout << "file saved: " << str << std::endl;
-	}
-}
+//void eventKeyboard(appState & state, std::string & windowTitle, cv::Mat & matOutput)
+//{
+//	char key = cv::waitKey(10);
+//
+//	if (key == 'q' || key == 'Q')
+//		state = APPSTATE_EXIT;
+//	else if (key == 'w' || key == 'W')
+//	{
+//		time_t t = std::time(nullptr);
+//#pragma warning( disable : 4996 )
+//		tm tm = *std::localtime(&t);
+//
+//		std::ostringstream oss;
+//		oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+//		std::string str = windowTitle + "_" + oss.str() + ".jpg";
+//		cv::imwrite(str, matOutput);
+//		std::cout << "file saved: " << str << std::endl;
+//	}
+//}
 
 

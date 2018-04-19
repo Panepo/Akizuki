@@ -51,21 +51,32 @@ void app::cameraInitial()
 
 void app::cameraProcess()
 {
-	begin = clock();
+	std::string infoText;
+	std::clock_t begin = clock();
+	static double elapsedAvg = 0;
 	
 	// application main process
 	switch (state)
 	{
 	case APPSTATE_STREAMER:
 		streamer.streamerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+		infoText = streamer.config.infoText;
 		break;
 	default:
 		state = APPSTATE_EXIT;
 		break;
 	}
 
-	end = clock();
-	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
+	std::clock_t end = clock();
+	double elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
+	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
+
+	std::ostringstream strs;
+	strs << elapsedAvg;
+	std::string str = strs.str() + " ms " + infoText;
+	funcStream::streamInfoer(&matOutput, str);
+
+	eventKeyboard();
 }
 
 // =================================================================================
@@ -127,5 +138,32 @@ void app::eventMouse(int event, int x, int y, int flags)
 		break;
 	default:
 		break;
+	}
+}
+
+void app::eventKeyboard()
+{
+	char key = cv::waitKey(10);
+
+	if (key == 'q' || key == 'Q')
+		state = APPSTATE_EXIT;
+	else if (key == 'w' || key == 'W')
+	{
+		time_t t = std::time(nullptr);
+#pragma warning( disable : 4996 )
+		tm tm = *std::localtime(&t);
+
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+		std::string str = windowTitle + "_" + oss.str() + ".jpg";
+		cv::imwrite(str, matOutput);
+		std::cout << "file saved: " << str << std::endl;
+	}
+	else if (key == 's' || key == 'S')
+	{
+		if (state == APPSTATE_STREAMER)
+			streamer.streamerKeyboardHandler();
+		else
+			state = APPSTATE_STREAMER;
 	}
 }

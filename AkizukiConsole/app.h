@@ -5,14 +5,8 @@
 #include <librealsense2\rs.hpp>
 #include <opencv2\opencv.hpp>
 
-#include <omp.h>
-#include <ctime>
-#include <sstream>
-#include <vector>
-#include <algorithm>
-
 #include "configCamera.h"
-#include "funcFormat.h"
+#include "funcStream.h"
 
 #include "zukiStreamer.h"
 
@@ -47,10 +41,6 @@ private:
 	// application private parameters
 	std::string windowTitle = "Akizuki";
 	std::string visualPreset = "High Density";
-	std::clock_t begin;
-	std::clock_t end;
-	double elapsed = 0;
-	double elapsedAvg = 0;
 	int ColorWidth = 640;
 	int ColorHeight = 480;
 	int ColorFPS = 30;
@@ -59,6 +49,7 @@ private:
 	int DepthFPS = 30;
 
 	// application events
+	void eventKeyboard();
 	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
 	void eventMouse(int event, int x, int y, int flags);
 

@@ -3,29 +3,6 @@
 
 namespace funcOpenCV
 {
-	void addMinimapRD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & output, cv::Size & sizeMap, int border, cv::Scalar color)
-	{
-		output = input.clone();
-		cv::Size size = output.size();
-		cv::Mat minimap = miniInput.clone();
-		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);
-		cv::copyMakeBorder(minimap, minimap, border, border, border, border, cv::BORDER_CONSTANT, color);
-		minimap.copyTo(output(cv::Rect(size.width - minimap.cols - 10, size.height - minimap.rows - 10,
-			minimap.cols, minimap.rows)));
-		
-	}
-
-	void addMinimapLD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & output, cv::Size & sizeMap, int border, cv::Scalar color)
-	{
-		output = input.clone();
-		cv::Size size = output.size();
-		cv::Mat minimap = miniInput.clone();
-		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);
-		cv::copyMakeBorder(minimap, minimap, border, border, border, border, cv::BORDER_CONSTANT, color);
-		minimap.copyTo(input(cv::Rect(10, size.height - minimap.rows - 10,
-			minimap.cols, minimap.rows)));
-	}
-
 	inline bool compareXCords(cv::Point pixelA, cv::Point pixelB)
 	{
 		return (pixelA.x < pixelB.x);
