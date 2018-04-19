@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include "funcStream.h"
 
+void funcStream::depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth)
+{
+	rs2::colorizer colorize;
+	colorize.set_option(RS2_OPTION_COLOR_SCHEME, 0);
+	rs2::frame depthColor = colorize(depth);
+	cv::Mat matDepth = funcFormat::frame2Mat(depthColor);
+	matOutput = matDepth.clone();
+}
+
 void funcStream::streamInfoer(cv::Mat * input, std::string text)
 {
 	cv::Size size = input->size();

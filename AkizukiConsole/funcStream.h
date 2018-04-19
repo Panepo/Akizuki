@@ -2,7 +2,10 @@
 #ifndef FUNCSTREAM_H
 #define FUNCSTREAM_H
 
+#include <librealsense2/rs.hpp>
 #include <opencv2/opencv.hpp>
+
+#include "funcFormat.h"
 
 #define inforerFontA	cv::FONT_HERSHEY_DUPLEX
 #define inforerFontB	cv::FONT_HERSHEY_SIMPLEX
@@ -19,8 +22,17 @@
 #define zoomerMapSize	3
 #define zoomerMapColor  cv::Scalar(0, 255,0)		// green
 
+typedef enum stream
+{
+	STREAM_COLOR,
+	STREAM_INFRARED,
+	STREAM_DEPTH,
+} stream;
+
 namespace funcStream
 {
+	void depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth);
+	
 	void streamInfoer(cv::Mat* input, std::string text);
 	void streamInfoerB(cv::Mat* input, std::string text);
 	

@@ -10,7 +10,6 @@
 #include "funcFormat.h"
 #include "funcStream.h"
 #include "funcGeometry3D.h"
-#include "funcOpenCV.h"
 
 #define rulerTrans		0.4
 #define rulerTransO		(1 - rulerTrans)
@@ -50,6 +49,7 @@ public:
 	cv::Point pixelRuler[2] = { cv::Point(0, 0), cv::Point(0, 0) };
 	float scaleZoom = 1;
 	std::string infoText = "";
+	stream stream = STREAM_COLOR;
 };
 
 class zukiRuler

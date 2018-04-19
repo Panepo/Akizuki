@@ -15,12 +15,27 @@ void zukiRuler::rulerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::sp
 	depth = filterSpat.process(depth);
 	depth = filterTemp.process(depth);
 
-	cv::Mat matColor = funcFormat::frame2Mat(alignedFrame.get_color_frame());
-	cv::Mat matColorOrig = matColor.clone();
-	funcStream::streamZoomer(matColorOrig, matColor, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom);
-	matOutput = matColor.clone();
+	cv::Mat matFrame;
+	switch (config.stream)
+	{
+	case STREAM_COLOR:
+		matFrame = funcFormat::frame2Mat(alignedFrame.get_color_frame());
+		matOutput = matFrame.clone();
+		break;
+	case STREAM_INFRARED:
+		// =========================================================================
+		// align infrared to color is not possible, so call data not call alignedFrame here
+		// =========================================================================
+		matFrame = funcFormat::frame2Mat(data.get_infrared_frame());
+		matOutput = matFrame.clone();
+		break;
+	case STREAM_DEPTH:
+		funcStream::depthColorizer(matOutput, depth);
+		break;
+	default:
+		break;
+	}
 
-	
 	switch (config.state)
 	{
 	case RULERSTATE_WAIT:
@@ -84,7 +99,23 @@ void zukiRuler::rulerMouseHandler(int event, int x, int y, int flags)
 
 void zukiRuler::rulerKeyboardHandler()
 {
-
+	//config.state = RULERSTATE_WAIT;
+	//config.infoText = "";
+	
+	switch (config.stream)
+	{
+	case STREAM_COLOR:
+		config.stream = STREAM_INFRARED;
+		break;
+	case STREAM_INFRARED:
+		config.stream = STREAM_DEPTH;
+		break;
+	case STREAM_DEPTH:
+		config.stream = STREAM_COLOR;
+		break;
+	default:
+		break;
+	}
 }
 
 
