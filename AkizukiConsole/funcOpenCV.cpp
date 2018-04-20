@@ -115,6 +115,6 @@ namespace funcOpenCV
 		cv::Mat inputEdge;
 		cv::Canny(inputGray, output, threshold1, threshold2, 3);
 
-		cv::imshow("canny test", output);
+		//cv::imshow("canny test", output);
 	}
 }

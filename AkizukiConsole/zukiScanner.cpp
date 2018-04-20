@@ -83,10 +83,15 @@ void zukiScanner::scannerKeyboardHandler()
 	{
 	case SCANNERSTATE_BLUR:
 		config.state = SCANNERSTATE_SHARP;
+		config.infoText = "Sharp state";
 		break;
 	case SCANNERSTATE_SHARP:
-		config.state = SCANNERSTATE_BLUR;
+		config.state = SCANNERSTATE_MULTI;
+		config.infoText = "Multi state";
 		break;
+	case SCANNERSTATE_MULTI:
+		config.state = SCANNERSTATE_BLUR;
+		config.infoText = "Blur state";
 	default:
 		break;
 	}

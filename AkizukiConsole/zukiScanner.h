@@ -39,7 +39,7 @@ public:
 	cv::Point pixelZoom = cv::Point(0, 0);
 	cv::Point pixelRoiZoom = cv::Point(0, 0);
 	float scaleZoom = 1;
-	std::string infoText = "";
+	std::string infoText = "Blur state";
 	stream stream = STREAM_COLOR;
 };
 
