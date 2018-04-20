@@ -1,11 +1,20 @@
 #include "stdafx.h"
-#include "mainWindow.h"
-#include <QtWidgets/QApplication>
+
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQuickStyle>
+
+#include "backend.h"
 
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
-	mainWindow w;
-	w.show();
-	return a.exec();
+	QQuickStyle::setStyle(QLatin1String("Material"));
+	QGuiApplication app(argc, argv);
+	
+	qmlRegisterType<BackEnd>("io.qt.examples.backend", 1, 0, "BackEnd");
+
+	QQmlApplicationEngine engine;
+	engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+
+	return app.exec();
 }

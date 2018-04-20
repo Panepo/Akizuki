@@ -36,7 +36,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mainWindow.cpp">
+    <ClCompile Include="backend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -46,17 +46,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="mainWindow.h">
+    <QtMoc Include="backend.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="mainWindow.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
+    <None Include="main.qml">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="mainWindow.qrc">
+    <QtRcc Include="assets.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
