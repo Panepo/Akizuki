@@ -22,6 +22,12 @@ void zukiScanner::scannerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2
 	case SCANNERSTATE_BLUR:
 		scannerBlur(matOutput, depth, intrinsics);
 		break;
+	case SCANNERSTATE_SHARP:
+		scannerSharp(matOutput, depth, intrinsics);
+		break;
+	case SCANNERSTATE_MULTI:
+		scannerMulti(matOutput, depth, intrinsics);
+		break;
 	default:
 		break;
 	}
@@ -58,16 +64,28 @@ void zukiScanner::scannerMouseHandler(int event, int x, int y, int flags)
 
 void zukiScanner::scannerKeyboardHandler()
 {
-	switch (config.stream)
+	//switch (config.stream)
+	//{
+	//case STREAM_COLOR:
+	//	config.stream = STREAM_INFRARED;
+	//	break;
+	//case STREAM_INFRARED:
+	//	config.stream = STREAM_DEPTH;
+	//	break;
+	//case STREAM_DEPTH:
+	//	config.stream = STREAM_COLOR;
+	//	break;
+	//default:
+	//	break;
+	//}
+
+	switch (config.state)
 	{
-	case STREAM_COLOR:
-		config.stream = STREAM_INFRARED;
+	case SCANNERSTATE_BLUR:
+		config.state = SCANNERSTATE_SHARP;
 		break;
-	case STREAM_INFRARED:
-		config.stream = STREAM_DEPTH;
-		break;
-	case STREAM_DEPTH:
-		config.stream = STREAM_COLOR;
+	case SCANNERSTATE_SHARP:
+		config.state = SCANNERSTATE_BLUR;
 		break;
 	default:
 		break;
@@ -75,21 +93,98 @@ void zukiScanner::scannerKeyboardHandler()
 }
 
 // =================================================================================
-// Plugin sub functions
+// Plugin sub states
 // =================================================================================
 
 void zukiScanner::scannerBlur(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
 {
 	cv::Mat edge;
 	funcOpenCV::cannyBlur(matOutput, edge, 50, 150);
+	scannerProcess(matOutput, edge, depth, intrinsics);
+}
 
+void zukiScanner::scannerSharp(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+{
+	cv::Mat edge;
+	funcOpenCV::cannySharp(matOutput, edge, 50, 150);
+	scannerProcess(matOutput, edge, depth, intrinsics);
+}
+
+void zukiScanner::scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+{
+	cv::Mat edgeBlur;
+	std::vector<std::vector<cv::Point>> contourBlur;
+	double contourAreaBlur;
+	std::vector<cv::Point> approxBlur;
+	int approxSizeBlur;
+	int idxBlur;
+
+	cv::Mat edgeSharp;
+	std::vector<std::vector<cv::Point>> contourSharp;
+	double contourAreaSharp;
+	std::vector<cv::Point> approxSharp;
+	int approxSizeSharp;
+	int idxSharp;
+
+	#pragma omp parallel sections
+	{
+		#pragma omp section
+		{
+			funcOpenCV::cannySharp(matOutput, edgeBlur, 50, 150);
+			scannerDetector(edgeBlur, contourBlur, contourAreaBlur, approxBlur, approxSizeBlur, idxBlur);
+		}
+		#pragma omp section
+		{
+			funcOpenCV::cannySharp(matOutput, edgeSharp, 50, 150);
+			scannerDetector(edgeSharp, contourSharp, contourAreaSharp, approxSharp, approxSizeSharp, idxSharp);
+		}
+	}
+
+	if (contourAreaBlur >= contourAreaSharp)
+	{
+		switch (approxSizeBlur)
+		{
+		case 4:
+			scannerDrawerRect(matOutput, contourBlur, contourAreaBlur, approxBlur, idxBlur, depth, intrinsics);
+			break;
+		case 5:
+		case 6:
+			scannerDrawerPoly(matOutput, contourBlur, contourAreaBlur, approxBlur, idxBlur, depth, intrinsics);
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		switch (approxSizeSharp)
+		{
+		case 4:
+			scannerDrawerRect(matOutput, contourSharp, contourAreaSharp, approxSharp, idxSharp, depth, intrinsics);
+			break;
+		case 5:
+		case 6:
+			scannerDrawerPoly(matOutput, contourSharp, contourAreaSharp, approxSharp, idxSharp, depth, intrinsics);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+// =================================================================================
+// Plugin sub functions
+// =================================================================================
+
+void zukiScanner::scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+{
 	std::vector<std::vector<cv::Point>> contour;
 	double contourArea;
 	std::vector<cv::Point> approx;
 	int approxSize;
 	int idx;
 	scannerDetector(edge, contour, contourArea, approx, approxSize, idx);
-	
+
 	switch (approxSize)
 	{
 	case 4:

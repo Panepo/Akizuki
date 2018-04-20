@@ -164,7 +164,7 @@ void app::eventKeyboard()
 	else if (key == 'w' || key == 'W')
 	{
 		time_t t = std::time(nullptr);
-#pragma warning( disable : 4996 )
+		#pragma warning( disable : 4996 )
 		tm tm = *std::localtime(&t);
 
 		std::ostringstream oss;

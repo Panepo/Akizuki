@@ -6,6 +6,7 @@
 #include <opencv2\opencv.hpp>
 
 #include <vector>
+#include <omp.h>
 
 #include "funcStream.h"
 #include "funcFormat.h"
@@ -59,6 +60,10 @@ public:
 	configScanner config;
 private:
 	void scannerBlur(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
+	void scannerSharp(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
+	void scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
+
+	void scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
 
 	void scannerDetector(
 		cv::Mat & edge, 
@@ -69,7 +74,7 @@ private:
 		int & idx
 	);
 	
-	void scannerDrawer4(
+	void scannerDrawerRect(
 		cv::Mat & matOutput, 
 		std::vector<std::vector<cv::Point>> & contour,
 		double & contourArea, 
@@ -79,7 +84,7 @@ private:
 		rs2_intrinsics & intrinsics
 	);
 
-	void scannerDrawer56(
+	void scannerDrawerPoly(
 		cv::Mat & matOutput,
 		std::vector<std::vector<cv::Point>> & contour,
 		double & contourArea,
