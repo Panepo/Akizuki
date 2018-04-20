@@ -66,6 +66,10 @@ void app::cameraProcess()
 		ruler.rulerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
 		infoText = ruler.config.infoText;
 		break;
+	case APPSTATE_SCANNER:
+		scanner.scannerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+		infoText = scanner.config.infoText;
+		break;
 	default:
 		state = APPSTATE_EXIT;
 		break;
@@ -143,6 +147,9 @@ void app::eventMouse(int event, int x, int y, int flags)
 	case APPSTATE_RULER:
 		ruler.rulerMouseHandler(event, modx, mody, flags);
 		break;
+	case APPSTATE_SCANNER:
+		scanner.scannerMouseHandler(event, modx, mody, flags);
+		break;
 	default:
 		break;
 	}
@@ -179,5 +186,12 @@ void app::eventKeyboard()
 			ruler.rulerKeyboardHandler();
 		else
 			state = APPSTATE_RULER;
+	}
+	else if (key == 'x' || key == 'X')
+	{
+		if (state == APPSTATE_SCANNER)
+			scanner.scannerKeyboardHandler();
+		else
+			state = APPSTATE_SCANNER;
 	}
 }

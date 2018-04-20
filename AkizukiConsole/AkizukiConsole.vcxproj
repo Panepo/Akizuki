@@ -161,6 +161,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="zukiRuler.h" />
+    <ClInclude Include="zukiScanner.h" />
     <ClInclude Include="zukiStreamer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +179,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="zukiRuler.cpp" />
+    <ClCompile Include="zukiScanner.cpp" />
     <ClCompile Include="zukiStreamer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

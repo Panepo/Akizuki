@@ -10,6 +10,37 @@ void funcStream::depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth)
 	matOutput = matDepth.clone();
 }
 
+void funcStream::streamSelector(cv::Mat & matOutput, stream stream, rs2::frameset alignedFrame, rs2::frameset data, rs2::depth_frame depth, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom)
+{
+	cv::Mat matFrame, matFrameOrig;
+	switch (stream)
+	{
+	case STREAM_COLOR:
+		matFrame = funcFormat::frame2Mat(alignedFrame.get_color_frame());
+		matFrameOrig = matFrame.clone();
+		streamZoomer(matFrameOrig, matFrame, pixelZoom, pixelRoiZoom, scaleZoom);
+		matOutput = matFrame.clone();
+		break;
+	case STREAM_INFRARED:
+		// =========================================================================
+		// align infrared to color is not possible, so call data not call alignedFrame here
+		// =========================================================================
+		matFrame = funcFormat::frame2Mat(data.get_infrared_frame());
+		matFrameOrig = matFrame.clone();
+		streamZoomer(matFrameOrig, matFrame, pixelZoom, pixelRoiZoom, scaleZoom);
+		matOutput = matFrame.clone();
+		break;
+	case STREAM_DEPTH:
+		funcStream::depthColorizer(matFrame, depth);
+		matFrameOrig = matFrame.clone();
+		streamZoomer(matFrameOrig, matFrame, pixelZoom, pixelRoiZoom, scaleZoom);
+		matOutput = matFrame.clone();
+		break;
+	default:
+		break;
+	}
+}
+
 void funcStream::streamInfoer(cv::Mat * input, std::string text)
 {
 	cv::Size size = input->size();

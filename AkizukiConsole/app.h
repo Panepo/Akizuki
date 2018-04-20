@@ -10,12 +10,14 @@
 
 #include "zukiStreamer.h"
 #include "zukiRuler.h"
+#include "zukiScanner.h"
 
 typedef enum appState
 {
 	APPSTATE_EXIT,
 	APPSTATE_STREAMER,
 	APPSTATE_RULER,
+	APPSTATE_SCANNER,
 } appState;
 
 class app
@@ -58,6 +60,7 @@ private:
 	// declare application plugins
 	zukiStreamer streamer;
 	zukiRuler ruler;
+	zukiScanner scanner;
 };
 
 #endif

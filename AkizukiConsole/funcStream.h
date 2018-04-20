@@ -32,6 +32,7 @@ typedef enum stream
 namespace funcStream
 {
 	void depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth);
+	void streamSelector(cv::Mat & matOutput, stream stream, rs2::frameset alignedFrame, rs2::frameset data, rs2::depth_frame depth, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom);
 	
 	void streamInfoer(cv::Mat* input, std::string text);
 	void streamInfoerB(cv::Mat* input, std::string text);

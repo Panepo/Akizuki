@@ -15,26 +15,7 @@ void zukiRuler::rulerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::sp
 	depth = filterSpat.process(depth);
 	depth = filterTemp.process(depth);
 
-	cv::Mat matFrame;
-	switch (config.stream)
-	{
-	case STREAM_COLOR:
-		matFrame = funcFormat::frame2Mat(alignedFrame.get_color_frame());
-		matOutput = matFrame.clone();
-		break;
-	case STREAM_INFRARED:
-		// =========================================================================
-		// align infrared to color is not possible, so call data not call alignedFrame here
-		// =========================================================================
-		matFrame = funcFormat::frame2Mat(data.get_infrared_frame());
-		matOutput = matFrame.clone();
-		break;
-	case STREAM_DEPTH:
-		funcStream::depthColorizer(matOutput, depth);
-		break;
-	default:
-		break;
-	}
+	funcStream::streamSelector(matOutput, config.stream, alignedFrame, data, depth, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom);
 
 	switch (config.state)
 	{

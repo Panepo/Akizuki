@@ -51,6 +51,9 @@
     <ClInclude Include="zukiRuler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="zukiScanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zukiRuler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zukiScanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
