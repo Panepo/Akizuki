@@ -48,11 +48,11 @@ public:
 
 	configScanner config;
 private:
-	void scannerBlur(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
-	void scannerSharp(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
-	void scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
+	void scannerBlur(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
+	void scannerSharp(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
+	void scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
 
-	void scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
+	void scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
 
 	void scannerDetector(
 		cv::Mat & edge, 
@@ -70,7 +70,8 @@ private:
 		std::vector<cv::Point> & approx, 
 		int & idx,
 		rs2::depth_frame & depth, 
-		rs2_intrinsics & intrinsics
+		rs2_intrinsics & intrinsics,
+		configZoomer & configZoomer
 	);
 
 	void scannerDrawerPoly(
@@ -80,10 +81,11 @@ private:
 		std::vector<cv::Point> & approx,
 		int & idx,
 		rs2::depth_frame & depth,
-		rs2_intrinsics & intrinsics
+		rs2_intrinsics & intrinsics,
+		configZoomer & configZoomer
 	);
 
-	void scannerCorrector(cv::Mat & warped, std::vector<cv::Point> & corner, rs2::depth_frame & depth, rs2_intrinsics & intrinsics);
+	void scannerCorrector(cv::Mat & warped, std::vector<cv::Point> & corner, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
 };
 
 #endif

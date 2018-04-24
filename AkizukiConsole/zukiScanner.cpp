@@ -10,13 +10,13 @@ void zukiScanner::scannerMain(cv::Mat & matOutput, rs2::depth_frame & depth, rs2
 	switch (config.state)
 	{
 	case SCANNERSTATE_BLUR:
-		scannerBlur(matOutput, depth, intrinsics);
+		scannerBlur(matOutput, depth, intrinsics, configZoomer);
 		break;
 	case SCANNERSTATE_SHARP:
-		scannerSharp(matOutput, depth, intrinsics);
+		scannerSharp(matOutput, depth, intrinsics, configZoomer);
 		break;
 	case SCANNERSTATE_MULTI:
-		scannerMulti(matOutput, depth, intrinsics);
+		scannerMulti(matOutput, depth, intrinsics, configZoomer);
 		break;
 	default:
 		break;
@@ -91,21 +91,21 @@ void zukiScanner::scannerKeyboardHandler()
 // Plugin sub states
 // =================================================================================
 
-void zukiScanner::scannerBlur(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerBlur(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
 	cv::Mat edge;
 	funcOpenCV::cannyBlur(matOutput, edge, 50, 150);
-	scannerProcess(matOutput, edge, depth, intrinsics);
+	scannerProcess(matOutput, edge, depth, intrinsics, configZoomer);
 }
 
-void zukiScanner::scannerSharp(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerSharp(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
 	cv::Mat edge;
 	funcOpenCV::cannySharp(matOutput, edge, 50, 150);
-	scannerProcess(matOutput, edge, depth, intrinsics);
+	scannerProcess(matOutput, edge, depth, intrinsics, configZoomer);
 }
 
-void zukiScanner::scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
 	cv::Mat edgeBlur;
 	std::vector<std::vector<cv::Point>> contourBlur;
@@ -140,11 +140,11 @@ void zukiScanner::scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs
 		switch (approxSizeBlur)
 		{
 		case 4:
-			scannerDrawerRect(matOutput, contourBlur, contourAreaBlur, approxBlur, idxBlur, depth, intrinsics);
+			scannerDrawerRect(matOutput, contourBlur, contourAreaBlur, approxBlur, idxBlur, depth, intrinsics, configZoomer);
 			break;
 		case 5:
 		case 6:
-			scannerDrawerPoly(matOutput, contourBlur, contourAreaBlur, approxBlur, idxBlur, depth, intrinsics);
+			scannerDrawerPoly(matOutput, contourBlur, contourAreaBlur, approxBlur, idxBlur, depth, intrinsics, configZoomer);
 			break;
 		default:
 			break;
@@ -155,11 +155,11 @@ void zukiScanner::scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs
 		switch (approxSizeSharp)
 		{
 		case 4:
-			scannerDrawerRect(matOutput, contourSharp, contourAreaSharp, approxSharp, idxSharp, depth, intrinsics);
+			scannerDrawerRect(matOutput, contourSharp, contourAreaSharp, approxSharp, idxSharp, depth, intrinsics, configZoomer);
 			break;
 		case 5:
 		case 6:
-			scannerDrawerPoly(matOutput, contourSharp, contourAreaSharp, approxSharp, idxSharp, depth, intrinsics);
+			scannerDrawerPoly(matOutput, contourSharp, contourAreaSharp, approxSharp, idxSharp, depth, intrinsics, configZoomer);
 			break;
 		default:
 			break;
@@ -171,7 +171,7 @@ void zukiScanner::scannerMulti(cv::Mat & matOutput, rs2::depth_frame & depth, rs
 // Plugin sub functions
 // =================================================================================
 
-void zukiScanner::scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
 	std::vector<std::vector<cv::Point>> contour;
 	double contourArea;
@@ -183,11 +183,11 @@ void zukiScanner::scannerProcess(cv::Mat & matOutput, cv::Mat & edge, rs2::depth
 	switch (approxSize)
 	{
 	case 4:
-		scannerDrawerRect(matOutput, contour, contourArea, approx, idx, depth, intrinsics);
+		scannerDrawerRect(matOutput, contour, contourArea, approx, idx, depth, intrinsics, configZoomer);
 		break;
 	case 5:
 	case 6:
-		scannerDrawerPoly(matOutput, contour, contourArea, approx, idx, depth, intrinsics);
+		scannerDrawerPoly(matOutput, contour, contourArea, approx, idx, depth, intrinsics, configZoomer);
 		break;
 	default:
 		break;
@@ -219,13 +219,13 @@ void zukiScanner::scannerDetector(cv::Mat & edge, std::vector<std::vector<cv::Po
 	}
 }
 
-void zukiScanner::scannerDrawerRect(cv::Mat & matOutput, std::vector<std::vector<cv::Point>>& contour, double & contourArea, std::vector<cv::Point>& approx, int & idx, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerDrawerRect(cv::Mat & matOutput, std::vector<std::vector<cv::Point>>& contour, double & contourArea, std::vector<cv::Point>& approx, int & idx, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
 	if (funcGeometry2D::checkAspectRatio2D(approx[1], approx[0], approx[2], 4))
 	{
 		cv::Mat warped;
 		funcOpenCV::fourPointTransform(matOutput, warped, approx);
-		scannerCorrector(warped, approx, depth, intrinsics);
+		scannerCorrector(warped, approx, depth, intrinsics, configZoomer);
 
 		cv::Size size = matOutput.size();
 		cv::Size sizeW = warped.size();
@@ -242,7 +242,7 @@ void zukiScanner::scannerDrawerRect(cv::Mat & matOutput, std::vector<std::vector
 	}
 }
 
-void zukiScanner::scannerDrawerPoly(cv::Mat & matOutput, std::vector<std::vector<cv::Point>>& contour, double & contourArea, std::vector<cv::Point>& approx, int & idx, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerDrawerPoly(cv::Mat & matOutput, std::vector<std::vector<cv::Point>>& contour, double & contourArea, std::vector<cv::Point>& approx, int & idx, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
 	cv::RotatedRect boundingBox = cv::minAreaRect(contour[idx]);
 	cv::Point2f corners[4];
@@ -256,7 +256,7 @@ void zukiScanner::scannerDrawerPoly(cv::Mat & matOutput, std::vector<std::vector
 
 		cv::Mat warped;
 		funcOpenCV::fourPointTransform(matOutput, warped, cornersV);
-		scannerCorrector(warped, cornersV, depth, intrinsics);
+		scannerCorrector(warped, cornersV, depth, intrinsics, configZoomer);
 
 		cv::Size size = matOutput.size();
 		cv::Size sizeW = warped.size();
@@ -279,14 +279,19 @@ void zukiScanner::scannerDrawerPoly(cv::Mat & matOutput, std::vector<std::vector
 	}
 }
 
-void zukiScanner::scannerCorrector(cv::Mat & warped, std::vector<cv::Point>& corner, rs2::depth_frame & depth, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerCorrector(cv::Mat & warped, std::vector<cv::Point>& corner, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
-	float pixelA[2] = { (float)corner[1].x, (float)corner[1].y };
-	float pixelB[2] = { (float)corner[0].x, (float)corner[0].y };
-	float pixelC[2] = { (float)corner[2].x, (float)corner[2].y };
+	cv::Point pixelA, pixelB, pixelC;
+	funcStream::streamZoomPixelTrans(corner[1], pixelA, configZoomer);
+	funcStream::streamZoomPixelTrans(corner[0], pixelB, configZoomer);
+	funcStream::streamZoomPixelTrans(corner[2], pixelC, configZoomer);
 
-	float distA = funcGeometry3D::calcDist3D(pixelA, pixelB, &depth, &intrinsics);
-	float distB = funcGeometry3D::calcDist3D(pixelA, pixelC, &depth, &intrinsics);
+	float pixelAA[2] = { (float)pixelA.x, (float)pixelA.y };
+	float pixelBA[2] = { (float)pixelB.x, (float)pixelB.y };
+	float pixelCA[2] = { (float)pixelC.x, (float)pixelC.y };
+
+	float distA = funcGeometry3D::calcDist3D(pixelAA, pixelBA, &depth, &intrinsics);
+	float distB = funcGeometry3D::calcDist3D(pixelAA, pixelCA, &depth, &intrinsics);
 
 	cv::Size sizeW = warped.size();
 	float mod;
