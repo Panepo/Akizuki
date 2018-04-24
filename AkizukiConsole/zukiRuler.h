@@ -7,7 +7,6 @@
 
 #include <vector>
 
-#include "funcFormat.h"
 #include "funcStream.h"
 #include "funcGeometry3D.h"
 
@@ -44,33 +43,22 @@ class configRuler
 public:
 	rulerState state = RULERSTATE_WAIT;
 	cv::Point pixelMouse = cv::Point(0, 0);
-	cv::Point pixelZoom = cv::Point(0, 0);
-	cv::Point pixelRoiZoom = cv::Point(0, 0);
 	cv::Point pixelRuler[2] = { cv::Point(0, 0), cv::Point(0, 0) };
-	float scaleZoom = 1;
 	std::string infoText = "";
-	stream stream = STREAM_COLOR;
 };
 
 class zukiRuler
 {
 public:
-	void rulerMain(
-		cv::Mat & matOutput,
-		rs2::pipeline & pipeline, 
-		rs2::spatial_filter & filterSpat, 
-		rs2::temporal_filter & filterTemp,
-		rs2_intrinsics & intrinsics
-	);
-
-	void rulerMouseHandler(int event, int x, int y, int flags);
-	void rulerKeyboardHandler();
+	void rulerMain(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
+	void rulerMouseHandler(int event, int x, int y, int flags, configZoomer & configZoomer);
+	void rulerKeyboardHandler(stream & stream);
 
 	configRuler config;
 private:
 	void rulerPainter(cv::Mat & matOutput);
-	void rulerPointer(cv::Mat & matOutput, const rs2::depth_frame & depth, const rs2_intrinsics & intrin);
-	void rulerDrawer(cv::Mat & matOutput, const rs2::depth_frame & depth);
+	void rulerPointer(cv::Mat & matOutput, const rs2::depth_frame & depth, const rs2_intrinsics & intrin, configZoomer & configZoomer);
+	void rulerDrawer(cv::Mat & matOutput, const rs2::depth_frame & depth, configZoomer & configZoomer);
 };
 
 #endif

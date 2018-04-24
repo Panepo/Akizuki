@@ -34,6 +34,7 @@ public:
 
 	appState state = APPSTATE_EXIT;
 	cv::Mat matOutput;
+	//rs2::depth_frame depth;
 
 private:
 	// realsense private parameters
@@ -41,6 +42,8 @@ private:
 	rs2_intrinsics intrinsics;
 	rs2::spatial_filter filterSpat;
 	rs2::temporal_filter filterTemp;
+	stream stream;
+	configZoomer configZoomer;
 
 	// application private parameters
 	std::string windowTitle = "Akizuki";

@@ -27,12 +27,30 @@ typedef enum stream
 	STREAM_COLOR,
 	STREAM_INFRARED,
 	STREAM_DEPTH,
+	STREAM_FILE,
 } stream;
+
+class configZoomer
+{
+public:
+	cv::Point pixelZoom = cv::Point(0, 0);
+	cv::Point pixelRoiZoom = cv::Point(0, 0);
+	float scaleZoom = 1;
+	bool miniMap = true;
+};
 
 namespace funcStream
 {
+	rs2::depth_frame streamSelector(
+		cv::Mat & matOutput,
+		stream stream,
+		rs2::pipeline & pipeline,
+		rs2::spatial_filter & filterSpat,
+		rs2::temporal_filter & filterTemp,
+		configZoomer & config
+	);
+	
 	void depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth);
-	void streamSelector(cv::Mat & matOutput, stream stream, rs2::frameset alignedFrame, rs2::frameset data, rs2::depth_frame depth, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom);
 	
 	void streamInfoer(cv::Mat* input, std::string text);
 	void streamInfoerB(cv::Mat* input, std::string text);
@@ -40,7 +58,9 @@ namespace funcStream
 	void streamMapperRD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & output, cv::Size & sizeMap, int border, cv::Scalar color);
 	void streamMapperLD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & output, cv::Size & sizeMap, int border, cv::Scalar color);
 	
-	void streamZoomer(cv::Mat & input, cv::Mat & output, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom);
+	void streamZoomer(cv::Mat & input, cv::Mat & output, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom, bool mini);
+
+	void streamZoomPixelTrans(cv::Point & input, cv::Point & output, configZoomer & configZoomer);
 }
 
 

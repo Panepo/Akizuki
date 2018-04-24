@@ -9,7 +9,6 @@
 #include <omp.h>
 
 #include "funcStream.h"
-#include "funcFormat.h"
 #include "funcGeometry2D.h"
 #include "funcGeometry3D.h"
 #include "funcOpenCV.h"
@@ -36,25 +35,15 @@ class configScanner
 public:
 	scannerState state = SCANNERSTATE_BLUR;
 	cv::Point pixelMouse = cv::Point(0, 0);
-	cv::Point pixelZoom = cv::Point(0, 0);
-	cv::Point pixelRoiZoom = cv::Point(0, 0);
-	float scaleZoom = 1;
 	std::string infoText = "Blur state";
-	stream stream = STREAM_COLOR;
 };
 
 class zukiScanner
 {
 public:
-	void scannerMain(
-		cv::Mat & matOutput,
-		rs2::pipeline & pipeline, 
-		rs2::spatial_filter & filterSpat, 
-		rs2::temporal_filter & filterTemp,
-		rs2_intrinsics & intrinsics
-	);
+	void scannerMain(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
   
-	void scannerMouseHandler(int event, int x, int y, int flags);
+	void scannerMouseHandler(int event, int x, int y, int flags, configZoomer & configZoomer);
 	void scannerKeyboardHandler();
 
 	configScanner config;

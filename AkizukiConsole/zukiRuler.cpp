@@ -5,18 +5,8 @@
 // Plugin main process
 // =================================================================================
 
-void zukiRuler::rulerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::spatial_filter & filterSpat, rs2::temporal_filter & filterTemp, rs2_intrinsics & intrinsics)
+void zukiRuler::rulerMain(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
-	rs2::align alignTo(RS2_STREAM_COLOR);
-	rs2::frameset data = pipeline.wait_for_frames();
-	rs2::frameset alignedFrame = alignTo.process(data);
-
-	rs2::depth_frame depth = alignedFrame.get_depth_frame();
-	depth = filterSpat.process(depth);
-	depth = filterTemp.process(depth);
-
-	funcStream::streamSelector(matOutput, config.stream, alignedFrame, data, depth, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom);
-
 	switch (config.state)
 	{
 	case RULERSTATE_WAIT:
@@ -25,8 +15,8 @@ void zukiRuler::rulerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::sp
 		rulerPainter(matOutput);
 		break;
 	case RULERSTATE_LINE:
-		rulerPointer(matOutput, depth, intrinsics);
-		rulerDrawer(matOutput, depth);
+		rulerPointer(matOutput, depth, intrinsics, configZoomer);
+		rulerDrawer(matOutput, depth, configZoomer);
 		break;
 	default:
 		break;
@@ -37,7 +27,7 @@ void zukiRuler::rulerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::sp
 // Plugin events
 // =================================================================================
 
-void zukiRuler::rulerMouseHandler(int event, int x, int y, int flags)
+void zukiRuler::rulerMouseHandler(int event, int x, int y, int flags, configZoomer & configZoomer)
 {
 	int value;
 
@@ -64,37 +54,35 @@ void zukiRuler::rulerMouseHandler(int event, int x, int y, int flags)
 		config.state = RULERSTATE_LINE;
 		break;
 	case CV_EVENT_MOUSEWHEEL:
-		config.pixelZoom.x = x;
-		config.pixelZoom.y = y;
+		configZoomer.pixelZoom.x = x;
+		configZoomer.pixelZoom.y = y;
 
 		value = cv::getMouseWheelDelta(flags);
-		if (value > 0 && config.scaleZoom < zoomerScaleMax)
-			config.scaleZoom += (float) 0.1;
-		else if (value < 0 && config.scaleZoom > zoomerScaleMin)
-			config.scaleZoom -= (float) 0.1;
+		if (value > 0 && configZoomer.scaleZoom < zoomerScaleMax)
+			configZoomer.scaleZoom += (float) 0.1;
+		else if (value < 0 && configZoomer.scaleZoom > zoomerScaleMin)
+			configZoomer.scaleZoom -= (float) 0.1;
 		break;
 	default:
 		break;
 	}
 }
 
-void zukiRuler::rulerKeyboardHandler()
+void zukiRuler::rulerKeyboardHandler(stream & stream)
 {
 	//config.state = RULERSTATE_WAIT;
 	//config.infoText = "";
 	
-	switch (config.stream)
+	switch (stream)
 	{
 	case STREAM_COLOR:
-		config.stream = STREAM_INFRARED;
+		stream = STREAM_INFRARED;
 		break;
 	case STREAM_INFRARED:
-		config.stream = STREAM_DEPTH;
+		stream = STREAM_DEPTH;
 		break;
 	case STREAM_DEPTH:
-		config.stream = STREAM_COLOR;
-		break;
-	default:
+		stream = STREAM_COLOR;
 		break;
 	}
 }
@@ -111,26 +99,16 @@ void zukiRuler::rulerPainter(cv::Mat & matOutput)
 	cv::addWeighted(overlay, rulerTrans, matOutput, rulerTransO, 0, matOutput);
 }
 
-void zukiRuler::rulerPointer(cv::Mat & matOutput, const rs2::depth_frame & depth, const rs2_intrinsics & intrin)
+void zukiRuler::rulerPointer(cv::Mat & matOutput, const rs2::depth_frame & depth, const rs2_intrinsics & intrin, configZoomer & configZoomer)
 {
 	cv::Mat overlay = matOutput.clone();
-	float posA[2], posB[2];
-
-	if (config.scaleZoom == 1)
-	{
-		posA[0] = (float)config.pixelRuler[0].x;
-		posA[1] = (float)config.pixelRuler[0].y;
-		posB[0] = (float)config.pixelRuler[1].x;
-		posB[1] = (float)config.pixelRuler[1].y;
-	}
-	else
-	{
-		posA[0] = (float)(config.pixelRuler[0].x * config.scaleZoom + config.pixelRoiZoom.x);
-		posA[1] = (float)(config.pixelRuler[0].y * config.scaleZoom + config.pixelRoiZoom.y);
-		posB[0] = (float)(config.pixelRuler[1].x * config.scaleZoom + config.pixelRoiZoom.x);
-		posB[1] = (float)(config.pixelRuler[1].y * config.scaleZoom + config.pixelRoiZoom.y);
-	}
-
+	
+	cv::Point pixelA, pixelB;
+	funcStream::streamZoomPixelTrans(config.pixelRuler[0], pixelA, configZoomer);
+	funcStream::streamZoomPixelTrans(config.pixelRuler[1], pixelB, configZoomer);
+	float posA[2] = { (float)pixelA.x, (float)pixelA.y };
+	float posB[2] = { (float)pixelB.x, (float)pixelB.y };
+	
 	cv::circle(overlay, config.pixelRuler[0], rulerPointSize, rulerPointColor, rulerPointFill);
 	cv::circle(overlay, config.pixelRuler[1], rulerPointSize, rulerPointColor, rulerPointFill);
 	cv::line(overlay, config.pixelRuler[0], config.pixelRuler[1], rulerPointColor, rulerLineSize2);
@@ -151,24 +129,13 @@ void zukiRuler::rulerPointer(cv::Mat & matOutput, const rs2::depth_frame & depth
 	cv::putText(matOutput, config.infoText, textCoord, rulerTextFontB, 1, rulerTextColorFB, 1, cv::LINE_AA);
 }
 
-void zukiRuler::rulerDrawer(cv::Mat & matOutput, const rs2::depth_frame & depth)
+void zukiRuler::rulerDrawer(cv::Mat & matOutput, const rs2::depth_frame & depth, configZoomer & configZoomer)
 {
-	float posA[2], posB[2];
-
-	if (config.scaleZoom == 1)
-	{
-		posA[0] = (float)config.pixelRuler[0].x;
-		posA[1] = (float)config.pixelRuler[0].y;
-		posB[0] = (float)config.pixelRuler[1].x;
-		posB[1] = (float)config.pixelRuler[1].y;
-	}
-	else
-	{
-		posA[0] = (float)(config.pixelRuler[0].x * config.scaleZoom + config.pixelRoiZoom.x);
-		posA[1] = (float)(config.pixelRuler[0].y * config.scaleZoom + config.pixelRoiZoom.y);
-		posB[0] = (float)(config.pixelRuler[1].x * config.scaleZoom + config.pixelRoiZoom.x);
-		posB[1] = (float)(config.pixelRuler[1].y * config.scaleZoom + config.pixelRoiZoom.y);
-	}
+	cv::Point pixelA, pixelB;
+	funcStream::streamZoomPixelTrans(config.pixelRuler[0], pixelA, configZoomer);
+	funcStream::streamZoomPixelTrans(config.pixelRuler[1], pixelB, configZoomer);
+	float posA[2] = { (float)pixelA.x, (float)pixelA.y };
+	float posB[2] = { (float)pixelB.x, (float)pixelB.y };
 	
 	float xdiff = abs(posA[0] - posB[0]);
 	float ydiff = abs(posA[1] - posB[1]);

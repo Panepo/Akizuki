@@ -5,18 +5,8 @@
 // Plugin main process
 // =================================================================================
 
-void zukiScanner::scannerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2::spatial_filter & filterSpat, rs2::temporal_filter & filterTemp, rs2_intrinsics & intrinsics)
+void zukiScanner::scannerMain(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer)
 {
-	rs2::align alignTo(RS2_STREAM_COLOR);
-	rs2::frameset data = pipeline.wait_for_frames();
-	rs2::frameset alignedFrame = alignTo.process(data);
-
-	rs2::depth_frame depth = alignedFrame.get_depth_frame();
-	depth = filterSpat.process(depth);
-	depth = filterTemp.process(depth);
-
-	funcStream::streamSelector(matOutput, config.stream, alignedFrame, data, depth, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom);
-
 	switch (config.state)
 	{
 	case SCANNERSTATE_BLUR:
@@ -37,7 +27,7 @@ void zukiScanner::scannerMain(cv::Mat & matOutput, rs2::pipeline & pipeline, rs2
 // Plugin events
 // =================================================================================
 
-void zukiScanner::scannerMouseHandler(int event, int x, int y, int flags)
+void zukiScanner::scannerMouseHandler(int event, int x, int y, int flags, configZoomer & configZoomer)
 {
 	int value;
 
@@ -48,14 +38,14 @@ void zukiScanner::scannerMouseHandler(int event, int x, int y, int flags)
 		config.pixelMouse.y = y;
 		break;
 	case CV_EVENT_MOUSEWHEEL:
-		config.pixelZoom.x = x;
-		config.pixelZoom.y = y;
+		configZoomer.pixelZoom.x = x;
+		configZoomer.pixelZoom.y = y;
 
 		value = cv::getMouseWheelDelta(flags);
-		if (value > 0 && config.scaleZoom < zoomerScaleMax)
-			config.scaleZoom += (float) 0.1;
-		else if (value < 0 && config.scaleZoom > zoomerScaleMin)
-			config.scaleZoom -= (float) 0.1;
+		if (value > 0 && configZoomer.scaleZoom < zoomerScaleMax)
+			configZoomer.scaleZoom += (float) 0.1;
+		else if (value < 0 && configZoomer.scaleZoom > zoomerScaleMin)
+			configZoomer.scaleZoom -= (float) 0.1;
 		break;
 	default:
 		break;

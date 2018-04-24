@@ -56,18 +56,33 @@ void app::cameraProcess()
 	static double elapsedAvg = 0;
 	
 	// application main process
+	//switch (stream)
+	//{
+	//case STREAM_COLOR:
+	//case STREAM_INFRARED:
+	//case STREAM_DEPTH:
+	//	funcStream::streamSelector(matOutput, depth, stream, pipeline, filterSpat, filterTemp, configZoomer);
+	//	break;
+	//case STREAM_FILE:
+	//	break;
+	//default:
+	//	break;
+	//}
+
+	rs2::depth_frame depth = funcStream::streamSelector(matOutput, stream, pipeline, filterSpat, filterTemp, configZoomer);
+
 	switch (state)
 	{
 	case APPSTATE_STREAMER:
-		streamer.streamerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+		streamer.streamerMain(matOutput, depth, intrinsics, configZoomer);
 		infoText = streamer.config.infoText;
 		break;
 	case APPSTATE_RULER:
-		ruler.rulerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+		ruler.rulerMain(matOutput, depth, intrinsics, configZoomer);
 		infoText = ruler.config.infoText;
 		break;
 	case APPSTATE_SCANNER:
-		scanner.scannerMain(matOutput, pipeline, filterSpat, filterTemp, intrinsics);
+		scanner.scannerMain(matOutput, depth, intrinsics, configZoomer);
 		infoText = scanner.config.infoText;
 		break;
 	default:
@@ -142,13 +157,13 @@ void app::eventMouse(int event, int x, int y, int flags)
 	switch (state)
 	{
 	case APPSTATE_STREAMER:
-		streamer.streamerMouseHandler(event, modx, mody, flags);
+		streamer.streamerMouseHandler(event, modx, mody, flags, configZoomer);
 		break;
 	case APPSTATE_RULER:
-		ruler.rulerMouseHandler(event, modx, mody, flags);
+		ruler.rulerMouseHandler(event, modx, mody, flags, configZoomer);
 		break;
 	case APPSTATE_SCANNER:
-		scanner.scannerMouseHandler(event, modx, mody, flags);
+		scanner.scannerMouseHandler(event, modx, mody, flags, configZoomer);
 		break;
 	default:
 		break;
@@ -176,22 +191,31 @@ void app::eventKeyboard()
 	else if (key == 's' || key == 'S')
 	{
 		if (state == APPSTATE_STREAMER)
-			streamer.streamerKeyboardHandler();
+			streamer.streamerKeyboardHandler(stream);
 		else
+		{
 			state = APPSTATE_STREAMER;
+			configZoomer.miniMap = true;
+		}
 	}
 	else if (key == 'z' || key == 'Z')
 	{
 		if (state == APPSTATE_RULER)
-			ruler.rulerKeyboardHandler();
+			ruler.rulerKeyboardHandler(stream);
 		else
+		{
 			state = APPSTATE_RULER;
+			configZoomer.miniMap = true;
+		}
 	}
 	else if (key == 'x' || key == 'X')
 	{
 		if (state == APPSTATE_SCANNER)
 			scanner.scannerKeyboardHandler();
 		else
+		{
 			state = APPSTATE_SCANNER;
+			configZoomer.miniMap = false;
+		}
 	}
 }

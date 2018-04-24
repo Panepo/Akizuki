@@ -10,16 +10,26 @@ void funcStream::depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth)
 	matOutput = matDepth.clone();
 }
 
-void funcStream::streamSelector(cv::Mat & matOutput, stream stream, rs2::frameset alignedFrame, rs2::frameset data, rs2::depth_frame depth, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom)
+
+rs2::depth_frame funcStream::streamSelector(cv::Mat & matOutput, stream stream, rs2::pipeline & pipeline, rs2::spatial_filter & filterSpat, rs2::temporal_filter & filterTemp, configZoomer & config)
 {
+	rs2::align alignTo(RS2_STREAM_COLOR);
+	rs2::frameset data = pipeline.wait_for_frames();
+	rs2::frameset alignedFrame = alignTo.process(data);
+
+	rs2::depth_frame depth = alignedFrame.get_depth_frame();
+	depth = filterSpat.process(depth);
+	depth = filterTemp.process(depth);
+	
 	cv::Mat matFrame, matFrameOrig;
 	switch (stream)
 	{
 	case STREAM_COLOR:
 		matFrame = funcFormat::frame2Mat(alignedFrame.get_color_frame());
 		matFrameOrig = matFrame.clone();
-		streamZoomer(matFrameOrig, matFrame, pixelZoom, pixelRoiZoom, scaleZoom);
+		streamZoomer(matFrameOrig, matFrame, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom, config.miniMap);
 		matOutput = matFrame.clone();
+		return depth;
 		break;
 	case STREAM_INFRARED:
 		// =========================================================================
@@ -27,16 +37,19 @@ void funcStream::streamSelector(cv::Mat & matOutput, stream stream, rs2::framese
 		// =========================================================================
 		matFrame = funcFormat::frame2Mat(data.get_infrared_frame());
 		matFrameOrig = matFrame.clone();
-		streamZoomer(matFrameOrig, matFrame, pixelZoom, pixelRoiZoom, scaleZoom);
+		streamZoomer(matFrameOrig, matFrame, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom, config.miniMap);
 		matOutput = matFrame.clone();
+		return depth;
 		break;
 	case STREAM_DEPTH:
 		funcStream::depthColorizer(matFrame, depth);
 		matFrameOrig = matFrame.clone();
-		streamZoomer(matFrameOrig, matFrame, pixelZoom, pixelRoiZoom, scaleZoom);
+		streamZoomer(matFrameOrig, matFrame, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom, config.miniMap);
 		matOutput = matFrame.clone();
+		return depth;
 		break;
 	default:
+		return 0;
 		break;
 	}
 }
@@ -78,7 +91,7 @@ void funcStream::streamMapperLD(cv::Mat & input, cv::Mat & miniInput, cv::Mat & 
 		minimap.cols, minimap.rows)));
 }
 
-void funcStream::streamZoomer(cv::Mat & input, cv::Mat & output, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom)
+void funcStream::streamZoomer(cv::Mat & input, cv::Mat & output, cv::Point & pixelZoom, cv::Point & pixelRoiZoom, float & scaleZoom, bool mini)
 {
 	if (scaleZoom == 1)
 	{
@@ -112,9 +125,25 @@ void funcStream::streamZoomer(cv::Mat & input, cv::Mat & output, cv::Point & pix
 		cv::resize(output, output, size, 0, 0, CV_INTER_AREA);
 
 		// generate mini-map
-		cv::Mat outMap = input.clone();
-		cv::rectangle(outMap, roi, zoomerLineColor, zoomerLineSize);
-		cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
-		streamMapperLD(output, outMap, output, sizeMap, zoomerMapSize, zoomerMapColor);
+		if (mini)
+		{
+			cv::Mat outMap = input.clone();
+			cv::rectangle(outMap, roi, zoomerLineColor, zoomerLineSize);
+			cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
+			streamMapperLD(output, outMap, output, sizeMap, zoomerMapSize, zoomerMapColor);
+		}
+	}
+}
+
+void funcStream::streamZoomPixelTrans(cv::Point & input, cv::Point & output, configZoomer & configZoomer)
+{
+	if (configZoomer.scaleZoom == 1)
+	{
+		output = input;
+	}
+	else
+	{
+		output.x = (int)(input.x * configZoomer.scaleZoom + configZoomer.pixelRoiZoom.x);
+		output.y = (int)(input.y * configZoomer.scaleZoom + configZoomer.pixelRoiZoom.y);
 	}
 }
