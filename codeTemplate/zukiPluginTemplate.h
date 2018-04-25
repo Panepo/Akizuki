@@ -17,25 +17,16 @@ class configPlugin
 public:
 	pluginState state = STREAMERSTATE_COLOR;
 	cv::Point pixelMouse = cv::Point(0, 0);
-	cv::Point pixelZoom = cv::Point(0, 0);
-	cv::Point pixelRoiZoom = cv::Point(0, 0);
-	float scaleZoom = 1;
 	std::string infoText = "";
 };
 
 class zukiPluginTemplate
 {
 public:
-	void PluginMain(
-		cv::Mat & matOutput,
-		rs2::pipeline & pipeline, 
-		rs2::spatial_filter & filterSpat, 
-		rs2::temporal_filter & filterTemp,
-		rs2_intrinsics & intrinsics
-	);
+	void pluginMain(cv::Mat & matOutput, rs2::depth_frame & depth, rs2_intrinsics & intrinsics, configZoomer & configZoomer);
   
-  void streamerMouseHandler(int event, int x, int y, int flags);
-	void streamerKeyboardHandler();
+  void pluginMouseHandler(int event, int x, int y, int flags, configZoomer & configZoomer);
+	void pluginKeyboardHandler(stream & stream);
 
 	configPlugin config;
 private:
