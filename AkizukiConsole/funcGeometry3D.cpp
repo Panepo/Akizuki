@@ -47,10 +47,10 @@ namespace funcGeometry3D
 		funcStream::streamZoomPixelTrans(pixelB1, pixelB1t, configZoomer);
 		funcStream::streamZoomPixelTrans(pixelB2, pixelB2t, configZoomer);
 
-		float a1[2] = { (float)pixelA1.x, (float)pixelA1.y };
-		float a2[2] = { (float)pixelA2.x, (float)pixelA2.y };
-		float b1[2] = { (float)pixelB1.x, (float)pixelB1.y };
-		float b2[2] = { (float)pixelB2.x, (float)pixelB2.y };
+		float a1[2] = { (float)pixelA1t.x, (float)pixelA1t.y };
+		float a2[2] = { (float)pixelA2t.x, (float)pixelA2t.y };
+		float b1[2] = { (float)pixelB1t.x, (float)pixelB1t.y };
+		float b2[2] = { (float)pixelB2t.x, (float)pixelB2t.y };
 
 		float distA = calcDist3D(a1, a2, depth, intrin);
 		float distB = calcDist3D(b1, b2, depth, intrin);
