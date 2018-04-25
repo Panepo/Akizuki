@@ -9,10 +9,12 @@
 #include <math.h>
 #include <vector>
 
+#include "funcStream.h"
+
 namespace funcGeometry3D
 {
 	float calcDist3D(float pixelA[2], float pixelB[2], const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
-	double calcArea3D(std::vector<cv::Point> contours, cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, cv::Point location, cv::Scalar lineColor, int lineSize);
+	double calcArea3D(std::vector<cv::Point> & contours, cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, cv::Point location, cv::Scalar lineColor, int lineSize, configZoomer & configZoomer);
 }
 
 #endif // !FUNGEOMETRY3D_H

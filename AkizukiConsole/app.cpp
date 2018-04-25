@@ -85,6 +85,10 @@ void app::cameraProcess()
 		scanner.scannerMain(matOutput, depth, intrinsics, configZoomer);
 		infoText = scanner.config.infoText;
 		break;
+	case APPSTATE_MEASURER:
+		measurer.measurerMain(matOutput, depth, intrinsics, configZoomer);
+		infoText = measurer.config.infoText;
+		break;
 	default:
 		state = APPSTATE_EXIT;
 		break;
@@ -165,6 +169,8 @@ void app::eventMouse(int event, int x, int y, int flags)
 	case APPSTATE_SCANNER:
 		scanner.scannerMouseHandler(event, modx, mody, flags, configZoomer);
 		break;
+	case APPSTATE_MEASURER:
+		measurer.measurerMouseHandler(event, modx, mody, flags, configZoomer);
 	default:
 		break;
 	}
@@ -205,6 +211,8 @@ void app::eventKeyboard()
 		else
 		{
 			state = APPSTATE_RULER;
+			ruler.config.state = RULERSTATE_WAIT;
+			ruler.config.infoText = "";
 			configZoomer.miniMap = true;
 		}
 	}
@@ -215,6 +223,18 @@ void app::eventKeyboard()
 		else
 		{
 			state = APPSTATE_SCANNER;
+			configZoomer.miniMap = false;
+		}
+	}
+	else if (key == 'c' || key == 'C')
+	{
+		if (state == APPSTATE_MEASURER)
+			measurer.measurerKeyboardHandler(stream);
+		else
+		{
+			state = APPSTATE_MEASURER;
+			measurer.config.state = MEASURER_WAIT;
+			measurer.config.infoText = "";
 			configZoomer.miniMap = false;
 		}
 	}

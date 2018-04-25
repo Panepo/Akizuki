@@ -11,6 +11,7 @@
 #include "zukiStreamer.h"
 #include "zukiRuler.h"
 #include "zukiScanner.h"
+#include "zukiMeasurer.h"
 
 typedef enum appState
 {
@@ -18,6 +19,7 @@ typedef enum appState
 	APPSTATE_STREAMER,
 	APPSTATE_RULER,
 	APPSTATE_SCANNER,
+	APPSTATE_MEASURER,
 } appState;
 
 class app
@@ -64,6 +66,7 @@ private:
 	zukiStreamer streamer;
 	zukiRuler ruler;
 	zukiScanner scanner;
+	zukiMeasurer measurer;
 };
 
 #endif

@@ -19,34 +19,38 @@ namespace funcGeometry3D
 			pow(pointA[2] - pointB[2], 2)) * 10000) / 100;
 	}
 
-	double calcArea3D(std::vector<cv::Point> contours, cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, cv::Point location, cv::Scalar lineColor, int lineSize)
+	double calcArea3D(std::vector<cv::Point> & contours, cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, cv::Point location, cv::Scalar lineColor, int lineSize, configZoomer & configZoomer)
 	{
 		cv::RotatedRect boundingBox = cv::minAreaRect(contours);
 		cv::Point2f corners[4];
 		boundingBox.points(corners);
 
-		float a1[2], a2[2], b1[2], b2[2];
-		a1[0] = (corners[0].x + corners[1].x) / 2;
-		a2[0] = (corners[2].x + corners[3].x) / 2;
-		a1[1] = (corners[0].y + corners[1].y) / 2;
-		a2[1] = (corners[2].y + corners[3].y) / 2;
+		cv::Point pixelA1 = cv::Point((int)(corners[0].x + corners[1].x) / 2, (int)(corners[0].y + corners[1].y) / 2);
+		cv::Point pixelA2 = cv::Point((int)(corners[2].x + corners[3].x) / 2, (int)(corners[2].y + corners[3].y) / 2);
+		cv::Point pixelB1 = cv::Point((int)(corners[0].x + corners[3].x) / 2, (int)(corners[0].y + corners[3].y) / 2);
+		cv::Point pixelB2 = cv::Point((int)(corners[1].x + corners[2].x) / 2, (int)(corners[1].y + corners[2].y) / 2);
+		cv::line(*input, pixelA1, pixelA2, lineColor, lineSize);
+		cv::line(*input, pixelB1, pixelB2, lineColor, lineSize);
 
-		b1[0] = (corners[0].x + corners[3].x) / 2;
-		b2[0] = (corners[1].x + corners[2].x) / 2;
-		b1[1] = (corners[0].y + corners[3].y) / 2;
-		b2[1] = (corners[1].y + corners[2].y) / 2;
+		pixelA1.x += location.x;
+		pixelA1.y += location.y;
+		pixelA2.x += location.x;
+		pixelA2.y += location.y;
+		pixelB1.x += location.x;
+		pixelB1.y += location.y;
+		pixelB2.x += location.x;
+		pixelB2.y += location.y;
 
-		cv::line(*input, cv::Point((int)a1[0], (int)a1[1]), cv::Point((int)a2[0], (int)a2[1]), lineColor, lineSize);
-		cv::line(*input, cv::Point((int)b1[0], (int)b1[1]), cv::Point((int)b2[0], (int)b2[1]), lineColor, lineSize);
+		cv::Point pixelA1t, pixelA2t, pixelB1t, pixelB2t;
+		funcStream::streamZoomPixelTrans(pixelA1, pixelA1t, configZoomer);
+		funcStream::streamZoomPixelTrans(pixelA2, pixelA2t, configZoomer);
+		funcStream::streamZoomPixelTrans(pixelB1, pixelB1t, configZoomer);
+		funcStream::streamZoomPixelTrans(pixelB2, pixelB2t, configZoomer);
 
-		a1[0] += location.x;
-		a1[1] += location.y;
-		a2[0] += location.x;
-		a2[1] += location.y;
-		b1[0] += location.x;
-		b1[1] += location.y;
-		b2[0] += location.x;
-		b2[1] += location.y;
+		float a1[2] = { (float)pixelA1.x, (float)pixelA1.y };
+		float a2[2] = { (float)pixelA2.x, (float)pixelA2.y };
+		float b1[2] = { (float)pixelB1.x, (float)pixelB1.y };
+		float b2[2] = { (float)pixelB2.x, (float)pixelB2.y };
 
 		float distA = calcDist3D(a1, a2, depth, intrin);
 		float distB = calcDist3D(b1, b2, depth, intrin);
