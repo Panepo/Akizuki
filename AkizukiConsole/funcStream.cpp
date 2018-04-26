@@ -11,9 +11,9 @@ void funcStream::depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth)
 }
 
 
-rs2::depth_frame funcStream::streamSelector(cv::Mat & matOutput, stream stream, rs2::pipeline & pipeline, rs2::spatial_filter & filterSpat, rs2::temporal_filter & filterTemp, configZoomer & config)
+rs2::depth_frame funcStream::streamSelector(cv::Mat & matOutput, stream stream, rs2::pipeline & pipeline, rs2::spatial_filter & filterSpat, rs2::temporal_filter & filterTemp, rs2_stream align, configZoomer & config)
 {
-	rs2::align alignTo(RS2_STREAM_COLOR);
+	rs2::align alignTo(align);
 	rs2::frameset data = pipeline.wait_for_frames();
 	rs2::frameset alignedFrame = alignTo.process(data);
 

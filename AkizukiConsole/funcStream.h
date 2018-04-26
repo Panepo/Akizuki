@@ -47,6 +47,7 @@ namespace funcStream
 		rs2::pipeline & pipeline,
 		rs2::spatial_filter & filterSpat,
 		rs2::temporal_filter & filterTemp,
+		rs2_stream align,
 		configZoomer & config
 	);
 	

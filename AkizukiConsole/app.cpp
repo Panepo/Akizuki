@@ -69,7 +69,8 @@ void app::cameraProcess()
 	//	break;
 	//}
 
-	rs2::depth_frame depth = funcStream::streamSelector(matOutput, stream, pipeline, filterSpat, filterTemp, configZoomer);
+	rs2_stream align = RS2_STREAM_COLOR;
+	rs2::depth_frame depth = funcStream::streamSelector(matOutput, stream, pipeline, filterSpat, filterTemp, align, configZoomer);
 
 	switch (state)
 	{
