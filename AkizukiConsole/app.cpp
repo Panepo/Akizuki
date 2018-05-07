@@ -52,8 +52,9 @@ void app::cameraInitial()
 void app::cameraProcess()
 {
 	std::string infoText;
-	std::clock_t begin = clock();
+	auto t0 = std::chrono::high_resolution_clock::now();
 	static double elapsedAvg = 0;
+	typedef std::chrono::duration<double, std::ratio<1, 1000>> ms;
 	
 	// application main process
 	//switch (stream)
@@ -95,8 +96,8 @@ void app::cameraProcess()
 		break;
 	}
 
-	std::clock_t end = clock();
-	double elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
+	auto t1 = std::chrono::high_resolution_clock::now();
+	double elapsed = std::chrono::duration_cast<ms>(t1 - t0).count();
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 
 	std::ostringstream strs;

@@ -35,7 +35,11 @@ rs2::depth_frame funcStream::streamSelector(cv::Mat & matOutput, stream stream, 
 		// =========================================================================
 		// align infrared to color is not possible, so call data not call alignedFrame here
 		// =========================================================================
-		matFrame = funcFormat::frame2Mat(data.get_infrared_frame());
+		if (align == RS2_STREAM_COLOR)
+			matFrame = funcFormat::frame2Mat(data.get_infrared_frame());
+		else if (align == RS2_STREAM_DEPTH)
+			matFrame = funcFormat::frame2Mat(alignedFrame.get_infrared_frame());
+		
 		matFrameOrig = matFrame.clone();
 		streamZoomer(matFrameOrig, matFrame, config.pixelZoom, config.pixelRoiZoom, config.scaleZoom, config.miniMap);
 		matOutput = matFrame.clone();
