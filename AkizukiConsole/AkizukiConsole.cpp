@@ -10,7 +10,7 @@ int main(int argc, char * argv[]) try
 	app akizuki(appTitle);
 
 	akizuki.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
-	akizuki.setResolution(RS2_STREAM_DEPTH, 1280, 720, 30);
+	akizuki.setResolution(RS2_STREAM_DEPTH, 640, 480, 30);
 	akizuki.setVisualPreset("High Density");
 	akizuki.cameraInitial();
 
