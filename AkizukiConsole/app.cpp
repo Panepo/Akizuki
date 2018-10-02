@@ -56,20 +56,6 @@ void app::cameraProcess()
 	static double elapsedAvg = 0;
 	typedef std::chrono::duration<double, std::ratio<1, 1000>> ms;
 	
-	// application main process
-	//switch (stream)
-	//{
-	//case STREAM_COLOR:
-	//case STREAM_INFRARED:
-	//case STREAM_DEPTH:
-	//	funcStream::streamSelector(matOutput, depth, stream, pipeline, filterSpat, filterTemp, configZoomer);
-	//	break;
-	//case STREAM_FILE:
-	//	break;
-	//default:
-	//	break;
-	//}
-
 	rs2_stream align = RS2_STREAM_COLOR;
 	rs2::depth_frame depth = funcStream::streamSelector(matOutput, stream, pipeline, filterDec, filterSpat, filterTemp, align, configZoomer);
 
@@ -178,26 +164,22 @@ void app::eventMouse(int event, int x, int y, int flags)
 	}
 }
 
+
+
 void app::eventKeyboard()
 {
-	char key = cv::waitKey(10);
-
-	if (key == 'q' || key == 'Q')
+	switch(cv::waitKey(10)) {
+	case 27: // ESC
+	case 81: // Q
+	case 113: // q
 		state = APPSTATE_EXIT;
-	else if (key == 'w' || key == 'W')
-	{
-		time_t t = std::time(nullptr);
-		#pragma warning( disable : 4996 )
-		tm tm = *std::localtime(&t);
-
-		std::ostringstream oss;
-		oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
-		std::string str = windowTitle + "_" + oss.str() + ".jpg";
-		cv::imwrite(str, matOutput);
-		std::cout << "file saved: " << str << std::endl;
-	}
-	else if (key == 's' || key == 'S')
-	{
+		break;
+	case 87: // W
+	case 119: // w
+		eventSaveImage();
+		break;
+	case 83: // S
+	case 115: // s
 		if (state == APPSTATE_STREAMER)
 			streamer.streamerKeyboardHandler(stream);
 		else
@@ -205,9 +187,9 @@ void app::eventKeyboard()
 			state = APPSTATE_STREAMER;
 			configZoomer.miniMap = true;
 		}
-	}
-	else if (key == 'z' || key == 'Z')
-	{
+		break;
+	case 90: // Z
+	case 122: // z
 		if (state == APPSTATE_RULER)
 			ruler.rulerKeyboardHandler(stream);
 		else
@@ -217,9 +199,9 @@ void app::eventKeyboard()
 			ruler.config.infoText = "";
 			configZoomer.miniMap = true;
 		}
-	}
-	else if (key == 'x' || key == 'X')
-	{
+		break;
+	case 88: // X
+	case 120: // x
 		if (state == APPSTATE_SCANNER)
 			scanner.scannerKeyboardHandler();
 		else
@@ -227,9 +209,9 @@ void app::eventKeyboard()
 			state = APPSTATE_SCANNER;
 			configZoomer.miniMap = false;
 		}
-	}
-	else if (key == 'c' || key == 'C')
-	{
+		break;
+	case 67: // C
+	case 99: // c
 		if (state == APPSTATE_MEASURER)
 			measurer.measurerKeyboardHandler(stream);
 		else
@@ -239,5 +221,21 @@ void app::eventKeyboard()
 			measurer.config.infoText = "";
 			configZoomer.miniMap = false;
 		}
+		break;
+	default:
+		break;
 	}
+}
+
+void app::eventSaveImage()
+{
+	time_t t = std::time(nullptr);
+	#pragma warning( disable : 4996 )
+	tm tm = *std::localtime(&t);
+
+	std::ostringstream oss;
+	oss << std::put_time(&tm, "%m-%d-%Y %H-%M-%S");
+	std::string str = windowTitle + "_" + oss.str() + ".jpg";
+	cv::imwrite(str, matOutput);
+	std::cout << "file saved: " << str << std::endl;
 }

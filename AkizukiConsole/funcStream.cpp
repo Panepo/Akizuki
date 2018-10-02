@@ -5,8 +5,7 @@ void funcStream::depthColorizer(cv::Mat & matOutput, rs2::depth_frame & depth)
 {
 	rs2::colorizer colorize;
 	colorize.set_option(RS2_OPTION_COLOR_SCHEME, 0);
-	rs2::frame depthColor = colorize(depth);
-	cv::Mat matDepth = funcFormat::frame2Mat(depthColor);
+	cv::Mat matDepth = funcFormat::frame2Mat(depth.apply_filter(colorize));
 	matOutput = matDepth.clone();
 }
 

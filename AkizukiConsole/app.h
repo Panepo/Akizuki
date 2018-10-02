@@ -64,6 +64,7 @@ private:
 	void eventKeyboard();
 	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
 	void eventMouse(int event, int x, int y, int flags);
+	void eventSaveImage();
 
 	// declare application plugins
 	zukiStreamer streamer;
